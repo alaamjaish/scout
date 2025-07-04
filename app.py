@@ -52,7 +52,7 @@ def main():
     <div class="main-header">
         <h1>📧 Scout AI Newsletter Generator v2.0</h1>
         <p>Generate professional newsletters AND send them via email!</p>
-        <small>🚀 NEW: Email delivery feature!</small>
+        <small>🚀 NEW: Resend email delivery - developer-friendly!</small>
     </div>
     """, unsafe_allow_html=True)
     
@@ -74,7 +74,7 @@ def main():
         • **🎨 Beautiful HTML emails** - Professional formatting
         • **📱 Mobile-friendly** - Looks great on all devices
         • **⚡ Instant delivery** - Emails arrive in seconds
-        • **🔒 Secure sending** - Enterprise-grade SMTP
+        • **🚀 Resend API** - Developer-friendly, no SMTP complexity
         • **📊 Delivery tracking** - Know when it's sent
         """)
         
@@ -376,12 +376,13 @@ def main():
                         - Verify your TAVILY_API_KEY and OPENAI_API_KEY are correct
                         - Make sure you have sufficient API credits
                         """)
-                    elif "SMTP" in str(e) or "email" in str(e).lower():
+                    elif "resend" in str(e).lower() or "email" in str(e).lower():
                         st.markdown("""
                         **Email configuration needed:**
-                        - Add SMTP_EMAIL and SMTP_PASSWORD to your environment variables
-                        - For Gmail: Use app-specific password, not your regular password
-                        - Check that SMTP settings are correct
+                        - Add RESEND_API_KEY to your .env file
+                        - Get your free API key from resend.com
+                        - Run: python test_resend.py to verify setup
+                        - Check EMAIL_SETUP.md for step-by-step guide
                         """)
                     else:
                         st.markdown("""
