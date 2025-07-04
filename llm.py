@@ -69,7 +69,13 @@ def generate_newsletter(all_content, topic):
         response = openai_client.chat.completions.create(
             model="gpt-4.1-mini-2025-04-14",
             messages=[
-                {"role": "system", "content": "You are a skilled newsletter writer who creates compelling, insightful newsletters from research summaries."},
+                {"role": "system", "content": 
+                 """
+                 You are a skilled newsletter writer who creates compelling, insightful newsletters from research summaries.
+                 You are also a very smart news letter writier, like the news  letter must be su per amazing
+                 also, try to mention dates and stats if the content is available, font invent some stats if not available
+                 try your best to make the newsletter as amazing as possible
+                 """},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1000,

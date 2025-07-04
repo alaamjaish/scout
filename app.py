@@ -50,45 +50,23 @@ def main():
     # Header
     st.markdown("""
     <div class="main-header">
-        <h1>📧 Scout AI Newsletter Generator v2.0</h1>
-        <p>Generate professional newsletters AND send them via email!</p>
-        <small>🚀 NEW: Resend email delivery - developer-friendly!</small>
+        <h1>📧 Scout AI Newsletter Generator</h1>
     </div>
     """, unsafe_allow_html=True)
     
-    # Sidebar for instructions and features
+    # Sidebar for topic suggestions
     with st.sidebar:
-        st.header("📋 How to Use Scout v2.0")
-        st.markdown("""
-        1. **Enter your newsletter topic** in the main area
-        2. **Choose delivery method**: Download, Email, or Both
-        3. **Add email address** (if sending via email)
-        4. **Click 'Generate & Send'** to start AI research
-        5. **Wait for processing** (usually 30-60 seconds)
-        6. **Receive your newsletter** via your chosen method!
-        """)
-        
-        st.header("✨ What's NEW in v2.0")
-        st.markdown("""
-        • **📧 Email Delivery** - Send directly to any email
-        • **🎨 Beautiful HTML emails** - Professional formatting
-        • **📱 Mobile-friendly** - Looks great on all devices
-        • **⚡ Instant delivery** - Emails arrive in seconds
-        • **🚀 Resend API** - Developer-friendly, no SMTP complexity
-        • **📊 Delivery tracking** - Know when it's sent
-        """)
-        
-        st.header("💡 Topic Ideas")
-        if st.button("🤖 AI & Machine Learning"):
-            st.session_state.suggested_topic = "Latest breakthroughs in artificial intelligence and machine learning"
-        if st.button("🔬 Biotech & Health"):
-            st.session_state.suggested_topic = "Recent developments in biotechnology and healthcare innovation"
+        st.header("💡 Quick Topics")
+        if st.button("🤖 AI & ML"):
+            st.session_state.suggested_topic = "Latest breakthroughs in artificial intelligence"
+        if st.button("🔬 Biotech"):
+            st.session_state.suggested_topic = "Recent biotech innovations"
         if st.button("🌱 Climate Tech"):
-            st.session_state.suggested_topic = "Sustainable technology and climate change solutions"
+            st.session_state.suggested_topic = "Climate technology solutions"
         if st.button("💰 Fintech"):
-            st.session_state.suggested_topic = "Financial technology trends and digital banking innovations"
+            st.session_state.suggested_topic = "Financial technology trends"
         if st.button("🚀 Space Tech"):
-            st.session_state.suggested_topic = "Space exploration and aerospace technology advances"
+            st.session_state.suggested_topic = "Space technology advances"
     
     # Main interface
     col1, col2 = st.columns([2, 1])
@@ -97,26 +75,20 @@ def main():
         # Topic input with suggestion handling
         default_topic = st.session_state.get('suggested_topic', '')
         topic = st.text_input(
-            "📝 Enter your newsletter topic:",
+            "📝 Newsletter topic:",
             value=default_topic,
-            placeholder="e.g., AI breakthroughs, climate tech, fintech trends, robotics innovations",
-            help="Be specific for better results. Examples: 'Latest developments in quantum computing' or 'Sustainable energy innovations 2025'"
+            placeholder="e.g., AI breakthroughs, climate tech, fintech trends"
         )
     
     with col2:
-        st.markdown("### 🎯 Quick Tips")
+        st.markdown("### 🎯 Tips")
         st.markdown("""
-        - **Be specific**: "AI robotics in manufacturing" vs "AI"
-        - **Include timeframe**: "Recent developments" or "2025 trends"
-        - **Focus areas**: "market impact", "technical breakthroughs"
+        - Be specific
+        - Include timeframe  
+        - Focus on recent trends
         """)
     
-    # NEW: Email Section
-    st.markdown("""
-    <div class="email-section">
-        <h3>📧 Delivery Options</h3>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 📧 Delivery")
     
     # Delivery method selection
     col1, col2, col3 = st.columns(3)
@@ -136,14 +108,12 @@ def main():
     # Email input (only show if email option is selected)
     recipient_email = ""
     if send_email:
-        st.markdown("### 📬 Email Details")
         col1, col2 = st.columns([2, 1])
         
         with col1:
             recipient_email = st.text_input(
-                "📧 Send newsletter to:",
-                placeholder="your-email@example.com",
-                help="Enter the email address where you'd like to receive the newsletter"
+                "📧 Email address:",
+                placeholder="your-email@example.com"
             )
         
         with col2:
@@ -157,7 +127,7 @@ def main():
         
         # Email preview info
         if recipient_email and re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', recipient_email):
-            st.info(f"📧 Newsletter will be sent to: **{recipient_email}**")
+            st.info(f"📧 Send to: **{recipient_email}**")
     
     # Newsletter generation
     button_text = "🚀 Generate Newsletter"
@@ -174,15 +144,15 @@ def main():
             
             # Validation
             if send_email and not recipient_email:
-                st.error("⚠️ Please enter an email address to send the newsletter!")
+                st.error("⚠️ Enter email address")
                 return
             
             if send_email and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', recipient_email):
-                st.error("⚠️ Please enter a valid email address!")
+                st.error("⚠️ Invalid email")
                 return
             
             if not download_only and not send_email:
-                st.error("⚠️ Please select at least one delivery method!")
+                st.error("⚠️ Select delivery method")
                 return
                 
             # Progress tracking
@@ -193,60 +163,55 @@ def main():
                 status_text = st.empty()
                 
                 try:
-                    # Step 1: Research
-                    status_text.markdown("🔍 **Researching your topic across multiple sources...**")
+                    # Research
+                    status_text.markdown("🔍 **Researching...**")
                     progress_bar.progress(20)
                     
                     search_results = get_latest_articles(topic)
                     progress_bar.progress(50)
                     
-                    # Check if we got good results
                     if not search_results:
-                        st.warning("⚠️ No high-quality content found for this topic. Try a different search term or check your API keys.")
+                        st.warning("⚠️ No content found. Try a different topic.")
                         return
                     
-                    # Step 2: Generate
-                    status_text.markdown("✍️ **Generating your newsletter with AI...**")
+                    # Generate
+                    status_text.markdown("✍️ **Generating...**")
                     progress_bar.progress(70)
                     
                     newsletter = generate_newsletter(search_results, topic)
                     progress_bar.progress(85)
                     
-                    # Step 3: Email sending (if requested)
+                    # Email sending
                     email_success = False
                     email_message = ""
                     
                     if send_email:
-                        status_text.markdown("📧 **Sending email...**")
+                        status_text.markdown("📧 **Sending...**")
                         progress_bar.progress(90)
                         
                         email_success, email_message = send_newsletter_email(recipient_email, newsletter, topic)
                         
-                    # Step 4: Complete
+                    # Complete
                     progress_bar.progress(100)
-                    status_text.markdown("✅ **Newsletter generated successfully!**")
+                    status_text.markdown("✅ **Done!**")
                     
                     # Clear progress after a moment
                     import time
                     time.sleep(1)
                     progress_container.empty()
                     
-                    # Display results based on delivery method
+                    # Display results
                     if send_email and email_success:
-                        st.success(f"🎉 Newsletter sent successfully to **{recipient_email}**!")
-                        st.balloons()  # Celebration animation!
+                        st.success(f"📧 Sent to **{recipient_email}**")
                     elif send_email and not email_success:
-                        st.error(f"❌ Email sending failed: {email_message}")
-                        st.warning("💡 You can still download the newsletter below!")
+                        st.error(f"❌ Email failed: {email_message}")
                     
                     if download_only or not email_success:
-                        st.success("🎉 Your newsletter is ready for download!")
+                        st.success("✅ Newsletter ready")
                     
-                    # Newsletter display with better formatting
-                    st.markdown("### 📰 Your Newsletter:")
+                    st.markdown("### 📰 Newsletter")
                     
-                    # Create tabs for different views
-                    tab1, tab2 = st.tabs(["📖 Formatted View", "📝 Raw Markdown"])
+                    tab1, tab2 = st.tabs(["📖 View", "📝 Raw"])
                     
                     with tab1:
                         st.markdown(newsletter)
@@ -254,157 +219,40 @@ def main():
                     with tab2:
                         st.code(newsletter, language="markdown")
                     
-                    # Download and sharing options
-                    st.markdown("### 💾 Delivery Summary")
-                    
-                    # Show delivery status
-                    col1, col2, col3 = st.columns(3)
-                    
-                    with col1:
-                        if download_only:
-                            st.success("📥 Download Ready")
-                        else:
-                            st.info("📥 Download Available")
-                    
-                    with col2:
-                        if send_email:
-                            if email_success:
-                                st.success("📧 Email Sent ✅")
-                            else:
-                                st.error("📧 Email Failed ❌")
-                        else:
-                            st.info("📧 Email Not Requested")
-                    
-                    with col3:
-                        sources_used = len(search_results)
-                        st.metric("📊 Sources Used", sources_used)
-                    
                     # Download options
-                    st.markdown("### 📥 Download Options")
-                    col1, col2, col3 = st.columns(3)
+                    st.markdown("### 📥 Download")
                     
-                    with col1:
-                        # Generate filename
-                        safe_topic = topic.replace(' ', '_').replace('/', '_')[:30]
-                        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M')
-                        filename = f"scout_newsletter_{safe_topic}_{timestamp}.md"
-                        
-                        st.download_button(
-                            label="📥 Download Markdown",
-                            data=newsletter,
-                            file_name=filename,
-                            mime="text/markdown",
-                            use_container_width=True
-                        )
+                    # Generate filename
+                    safe_topic = topic.replace(' ', '_').replace('/', '_')[:30]
+                    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M')
+                    filename = f"scout_newsletter_{safe_topic}_{timestamp}.md"
                     
-                    with col2:
-                        if send_email and email_success:
-                            st.success("📧 Already in your inbox!")
-                        else:
-                            # Show email retry option if it failed
-                            if send_email and not email_success:
-                                if st.button("🔄 Retry Email", use_container_width=True):
-                                    retry_success, retry_message = send_newsletter_email(recipient_email, newsletter, topic)
-                                    if retry_success:
-                                        st.success("📧 Email sent on retry!")
-                                        st.balloons()
-                                    else:
-                                        st.error(f"❌ Retry failed: {retry_message}")
-                            else:
-                                st.info("📧 Email delivery\n*Available above*")
+                    st.download_button(
+                        label="📥 Download",
+                        data=newsletter,
+                        file_name=filename,
+                        mime="text/markdown",
+                        use_container_width=True
+                    )
                     
-                    with col3:
-                        # Future: Add PDF option
-                        st.info("📄 PDF export\n*Coming v2.1*")
-                    
-                    # Newsletter statistics
-                    st.markdown("### 📊 Newsletter Stats")
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        word_count = len(newsletter.split())
-                        st.metric("Words", word_count)
-                    
-                    with col2:
-                        char_count = len(newsletter)
-                        st.metric("Characters", char_count)
-                    
-                    with col3:
-                        sources_used = len(search_results)
-                        st.metric("Sources", sources_used)
-                    
-                    with col4:
-                        estimated_read_time = max(1, word_count // 200)
-                        st.metric("Read Time", f"{estimated_read_time} min")
-                    
-                    # Email-specific stats (if email was sent)
-                    if send_email and email_success:
-                        st.markdown("### 📧 Email Delivery Stats")
-                        col1, col2, col3 = st.columns(3)
-                        
-                        with col1:
-                            st.metric("📧 Delivered To", "1 recipient")
-                        
-                        with col2:
-                            delivery_time = datetime.datetime.now().strftime('%H:%M')
-                            st.metric("🕐 Sent At", delivery_time)
-                        
-                        with col3:
-                            st.metric("📱 Format", "HTML + Text")
-                    
-                    # Feedback section
-                    st.markdown("### 💬 Feedback")
-                    feedback_col1, feedback_col2 = st.columns(2)
-                    
-                    with feedback_col1:
-                        if st.button("👍 Great newsletter!", use_container_width=True):
-                            st.success("Thanks for the feedback! 🎉")
-                    
-                    with feedback_col2:
-                        if st.button("💡 Suggest improvements", use_container_width=True):
-                            st.info("Feature coming soon! For now, try different search terms for better results.")
+
                     
                 except Exception as e:
                     progress_container.empty()
-                    st.error(f"❌ **Error generating newsletter:** {str(e)}")
+                    st.error(f"❌ Error: {str(e)}")
                     
-                    # Helpful error messages based on common issues
+                    # Quick error hints
                     if "API" in str(e) or "key" in str(e).lower():
-                        st.markdown("""
-                        **Possible solutions:**
-                        - Check that your `.env` file exists with valid API keys
-                        - Verify your TAVILY_API_KEY and OPENAI_API_KEY are correct
-                        - Make sure you have sufficient API credits
-                        """)
+                        st.error("Check your API keys in .env file")
                     elif "resend" in str(e).lower() or "email" in str(e).lower():
-                        st.markdown("""
-                        **Email configuration needed:**
-                        - Add RESEND_API_KEY to your .env file
-                        - Get your free API key from resend.com
-                        - Run: python test_resend.py to verify setup
-                        - Check EMAIL_SETUP.md for step-by-step guide
-                        """)
+                        st.error("Email setup needed - check RESEND_API_KEY")
                     else:
-                        st.markdown("""
-                        **Try these steps:**
-                        - Check your internet connection
-                        - Try a different, more specific topic
-                        - Wait a moment and try again
-                        """)
+                        st.error("Try again with a different topic")
                         
         else:
-            st.error("⚠️ Please enter a topic to generate a newsletter!")
+            st.error("⚠️ Enter a topic")
     
-    # Footer with additional information
-    st.markdown("---")
-    st.markdown("""
-    <div style='text-align: center; color: #666; padding: 1rem;'>
-        <p><strong>Scout AI Newsletter Generator v2.0</strong> • Built with ❤️ using Python</p>
-        <p>Powered by Tavily Search & OpenAI • <a href='https://github.com' target='_blank'>View on GitHub</a></p>
-        <p><em>🚀 v2.0: Now with email delivery! | 📥 v1.0: Download only</em></p>
-        <p><strong>🎯 Day 2 of our 7-day web launch! Next: v3.0 with advanced AI!</strong></p>
-    </div>
-    """, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main() 
