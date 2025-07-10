@@ -50,20 +50,29 @@ def generate_newsletter(all_content, topic):
             content_summary += "\n---\n\n"
 
     prompt = f"""
-    You are an expert newsletter writer. Create an engaging newsletter about "{topic}".
-    
-    You have been provided with AI-generated summaries and article excerpts from multiple search angles:
+You are an expert newsletter writer. Create an engaging newsletter about "{topic}".
 
-    {content_summary}
+CRITICAL LANGUAGE REQUIREMENT: 
+- Analyze the language of the topic "{topic}"
+- Write your ENTIRE response in the SAME language as the topic
+- If topic is in Arabic, respond in Arabic
+- If topic is in Spanish, respond in Spanish  
+- If topic is in English, respond in English
+- NEVER translate the topic - match its language exactly
 
-    Please generate a newsletter with:
-    1. A catchy, attention-grabbing title
-    2. A brief intro paragraph (2-3 sentences) that hooks the reader
-    3. 3-4 key insights with bullet points, each highlighting important developments
-    4. A short conclusion paragraph about what this means for the future
-    
-    Keep it professional but exciting. Make it feel like insider knowledge.
-    """
+You have been provided with AI-generated summaries and article excerpts from multiple search angles:
+
+{content_summary}
+
+Please generate a newsletter with:
+1. A catchy, attention-grabbing title
+2. A brief intro paragraph (2-3 sentences) that hooks the reader
+3. 3-4 key insights with bullet points, each highlighting important developments
+4. A short conclusion paragraph about what this means for the future
+
+Keep it professional but exciting. Make it feel like insider knowledge.
+REMEMBER: Write in the SAME language as "{topic}".
+"""
 
     try:
         response = openai_client.chat.completions.create(
@@ -72,8 +81,14 @@ def generate_newsletter(all_content, topic):
                 {"role": "system", "content": 
                  """
                  You are a skilled newsletter writer who creates compelling, insightful newsletters from research summaries.
-                 You are also a very smart news letter writier, like the news  letter must be su per amazing
-                 also, try to mention dates and stats if the content is available, font invent some stats if not available
+                 
+                 CRITICAL LANGUAGE RULE:
+                 - Always analyze the language of the user's topic
+                 - Respond in the EXACT same language as the topic
+                 - Never assume English - detect and match the language
+                 
+                 You are also a very smart newsletter writer, like the newsletter must be super amazing
+                 also, try to mention dates and stats if the content is available, don't invent some stats if not available
                  try your best to make the newsletter as amazing as possible
                  """},
                 {"role": "user", "content": prompt}
@@ -86,3 +101,6 @@ def generate_newsletter(all_content, topic):
     except Exception as e:
         print(f"❌ Error generating newsletter: {e}")
         return "Could not generate the newsletter at this time." 
+    
+
+# print(generate_newsletter([], "Syria"))

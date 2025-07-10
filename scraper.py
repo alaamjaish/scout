@@ -28,14 +28,10 @@ def is_content_good(search_result, topic):
         print("   ❌ Filtered: Failed to process")
         return False
     
-    # Check topic relevance (simple word matching)
-    topic_words = topic.lower().split()
-    summary_lower = ai_summary.lower()
-    
-    matches = sum(1 for word in topic_words if word in summary_lower)
-    if matches == 0:  # No topic words found
-        print("   ❌ Filtered: Not relevant to topic")
-        return False
+    # Much more lenient relevance check
+    # For now, if we have a decent summary, assume it's relevant
+    # The search engine already did the relevance filtering
+    # We can add smarter relevance checking later if needed
     
     print("   ✅ Quality check passed")
     return True
@@ -53,16 +49,20 @@ def get_tavily_client():
         tavily_client = TavilyClient(api_key=api_key)
     return tavily_client
 
-def search_synthesis_approach(topic):
+def search_synthesis_approach(topic, search_strategy=None):
     """Let the search engine do the heavy lifting"""
     
     print(f"🔍 Searching for content about: {topic}")
     
     # Get client when needed (not at import time)
     client = get_tavily_client()
+    if search_strategy and 'search_queries' in search_strategy:
+        print(f"   🧠 Using SMART searches from strategy!")
+        searches = search_strategy['search_queries']  # ← Use SMART queries!
     
-    # 1. Multiple targeted searches with diverse angles
-    searches = [
+
+    else:
+        searches = [
         f"latest {topic} news 2025",
         f"{topic} breakthroughs recent developments", 
         f"{topic} industry trends analysis",
@@ -99,7 +99,6 @@ def search_synthesis_approach(topic):
     return all_content
 
 # Simple wrapper function to match your existing main.py
-def get_latest_articles(topic):
+def get_latest_articles(topic, search_strategy=None):
     """Simple wrapper that returns the new smart search results"""
-    return search_synthesis_approach(topic)
-
+    return search_synthesis_approach(topic, search_strategy)  # ← Pass strategy!
