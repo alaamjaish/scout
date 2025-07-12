@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from quality_checker import smart_teacher_check, print_report_card
+from Backend.quality_checker import smart_teacher_check, print_report_card
 
 load_dotenv()
 

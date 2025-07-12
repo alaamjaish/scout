@@ -1,9 +1,9 @@
 import streamlit as st
-from scraper import get_latest_articles  
-from llm import generate_newsletter
-from smart_searcher import smart_search_brain
-from quality_checker import smart_teacher_check
-from self_fixer import fix_newsletter
+from Backend.scraper import get_latest_articles  
+from Backend.llm import generate_newsletter
+from Backend.smart_searcher import smart_search_brain
+from Backend.quality_checker import smart_teacher_check
+from Backend.self_fixer import fix_newsletter
 
 
 def main():
