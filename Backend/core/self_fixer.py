@@ -2,7 +2,6 @@ import json
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from Backend.quality_checker import smart_teacher_check, print_report_card
 
 load_dotenv()
 
@@ -17,6 +16,13 @@ def fix_newsletter(bad_newsletter, topic, teacher_feedback):
     """
     Takes a bad newsletter and teacher feedback, returns improved version
     """
+    # Import locally to avoid circular import issues
+    try:
+        from quality_checker import smart_teacher_check, print_report_card
+    except ImportError:
+        # Fallback - quality_checker functions not available
+        pass
+    
     client = get_openai_client()
     
     # PROFESSIONAL NEWSLETTER REWRITE PROMPT

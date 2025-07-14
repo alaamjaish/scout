@@ -79,7 +79,7 @@ def search_synthesis_approach(topic, search_strategy=None):
             search_depth="advanced",
             max_results=3,
             include_answer=True,  # This is KEY - Tavily's AI summary
-            time_range="w"
+            days=7  # Search within the last 7 days
         )
         
         # Create the search result first
