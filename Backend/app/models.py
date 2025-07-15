@@ -1,6 +1,8 @@
 # app/models.py
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from datetime import datetime
+from typing import Dict
 
 # --- The WHY behind this class ---
 # We are defining a "data model". Think of it as a blueprint or a contract.
@@ -35,3 +37,11 @@ class NewsletterResponse(BaseModel):
     topic: str
 
 
+
+
+
+class HealthResponse(BaseModel):
+    """Defines the structure for the health check response."""
+    status: str = Field(..., description="The overall status of the API.")
+    timestamp: datetime = Field(default_factory=datetime.now, description="The time of the health check.")
+    services: Dict[str, str] = Field(..., description="The status of individual critical services.")
