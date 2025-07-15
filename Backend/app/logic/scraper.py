@@ -1,46 +1,15 @@
+# app/logic/scraper.py
+
 from tavily import TavilyClient
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def is_content_good(search_result, topic):
-    """Check if search result is high quality and relevant"""
-    ai_summary = search_result.get('ai_summary', '')
-    top_articles = search_result.get('top_articles', [])
-    
-    # Handle None values
-    if ai_summary is None:
-        ai_summary = ''
-    if top_articles is None:
-        top_articles = []
-    
-    # Filter out bad content
-    if len(ai_summary) < 50:  # Too short
-        print("   ❌ Filtered: Summary too short")
-        return False
-        
-    if "error" in ai_summary.lower() or "404" in ai_summary.lower():  # Has errors
-        print("   ❌ Filtered: Contains errors")
-        return False
-        
-    if "could not" in ai_summary.lower() or "unable to" in ai_summary.lower():  # Failed to process
-        print("   ❌ Filtered: Failed to process")
-        return False
-    
-    # Much more lenient relevance check
-    # For now, if we have a decent summary, assume it's relevant
-    # The search engine already did the relevance filtering
-    # We can add smarter relevance checking later if needed
-    
-    print("   ✅ Quality check passed")
-    return True
-
-# Don't initialize client at import time - do it when needed
+# We still only want one client instance, so this part is fine.
 tavily_client = None
 
 def get_tavily_client():
-    """Get Tavily client, initializing it if needed"""
     global tavily_client
     if tavily_client is None:
         api_key = os.environ.get("TAVILY_API_KEY")
@@ -49,47 +18,56 @@ def get_tavily_client():
         tavily_client = TavilyClient(api_key=api_key)
     return tavily_client
 
-def search_synthesis_approach(topic, search_strategy=None):
-    """Let the search engine do the heavy lifting"""
-    
-    print(f"🔍 Searching for content about: {topic}")
-    
-    # Get client when needed (not at import time)
-    client = get_tavily_client()
-    if search_strategy and 'search_queries' in search_strategy:
-        print(f"   🧠 Using SMART searches from strategy!")
-        searches = search_strategy['search_queries']  # ← Use SMART queries!
-    
+# This is an existing synchronous function, we can leave it as is.
+def is_content_good(search_result, topic):
+    # ... (no changes needed in this function)
+    ai_summary = search_result.get('ai_summary', '')
+    top_articles = search_result.get('top_articles', [])
+    if ai_summary is None: ai_summary = ''
+    if top_articles is None: top_articles = []
+    if len(ai_summary) < 50: return False
+    if "error" in ai_summary.lower() or "404" in ai_summary.lower(): return False
+    if "could not" in ai_summary.lower() or "unable to" in ai_summary.lower(): return False
+    print("   ✅ Quality check passed")
+    return True
 
-    else:
-        searches = [
-        f"latest {topic} news 2025",
-        f"{topic} breakthroughs recent developments", 
-        f"{topic} industry trends analysis",
-        f"{topic} expert opinions research",
+
+# --- The Main Change is Here ---
+# We change 'def' to 'async def' to make the function asynchronous
+async def get_latest_articles(topic, search_strategy=None):
+    """
+    Asynchronously searches the web using the Tavily API.
+    """
+    print(f"🔍 Searching for content about: {topic}")
+    client = get_tavily_client()
+    
+    # Use the smart search queries if available, otherwise use defaults
+    searches = search_strategy['search_queries'] if search_strategy and 'search_queries' in search_strategy else [
+        f"latest {topic} news 2025", f"{topic} breakthroughs recent developments",
+        f"{topic} industry trends analysis", f"{topic} expert opinions research",
         f"{topic} market impact business"
     ]
     
     all_content = []
     for search_query in searches:
-        print(f"   Searching: {search_query}")
+        print(f"   Searching (async): {search_query}")
         
-        response = client.search(
+        # We 'await' the result of the search call. This is the "pause" point.
+        # While our code waits for Tavily, the server can handle other requests.
+        response = await client.search(
             query=search_query,
             search_depth="advanced",
             max_results=3,
-            include_answer=True,  # This is KEY - Tavily's AI summary
+            include_answer=True,
             time_range="w"
         )
         
-        # Create the search result first
         search_result = {
             'query': search_query,
             'ai_summary': response.get('answer', '') if response.get('answer') is not None else '',
             'top_articles': [r.get('content', '') for r in response.get('results', [])[:2] if r.get('content')]
         }
         
-        # Only add if it passes quality check
         if is_content_good(search_result, topic):
             all_content.append(search_result)
         else:
@@ -97,8 +75,3 @@ def search_synthesis_approach(topic, search_strategy=None):
     
     print(f"✅ Found {len(all_content)} high-quality results (after filtering)")
     return all_content
-
-# Simple wrapper function to match your existing main.py
-def get_latest_articles(topic, search_strategy=None):
-    """Simple wrapper that returns the new smart search results"""
-    return search_synthesis_approach(topic, search_strategy)  # ← Pass strategy!

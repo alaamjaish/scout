@@ -18,7 +18,7 @@ def get_openai_client():
         client = OpenAI(api_key=api_key)
     return client
 
-def generate_newsletter(all_content, topic):
+async def generate_newsletter(all_content, topic):
     """
     Generates a newsletter using OpenAI's API from smart search results.
     """
@@ -75,7 +75,7 @@ REMEMBER: Write in the SAME language as "{topic}".
 """
 
     try:
-        response = openai_client.chat.completions.create(
+        response = await openai_client.chat.completions.create(
             model="gpt-4.1-mini-2025-04-14",
             messages=[
                 {"role": "system", "content": 

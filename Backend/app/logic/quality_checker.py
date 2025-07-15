@@ -13,7 +13,7 @@ def get_openai_client():
         raise ValueError("Need your OpenAI key!")
     return OpenAI(api_key=api_key)
 
-def smart_teacher_check(newsletter_content, topic):
+async def smart_teacher_check(newsletter_content, topic):
     """
     CRITICAL NEWSLETTER EVALUATOR - Uses evidence-based techniques to avoid positivity bias
     
@@ -91,7 +91,7 @@ def smart_teacher_check(newsletter_content, topic):
     """
     
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-4.1-2025-04-14",
             messages=[{"role": "user", "content": teacher_prompt}],
             temperature=0.1  # Low temperature for consistent critical evaluation
@@ -123,7 +123,7 @@ def smart_teacher_check(newsletter_content, topic):
             "emoji": "🤷‍♀️ SYSTEM ERROR"
         }
 
-def print_report_card(feedback):
+async def print_report_card(feedback):
     """Print the critical evaluation report"""
     print("\n🔍 CRITICAL NEWSLETTER EVALUATION 🔍")
     print("=" * 50)

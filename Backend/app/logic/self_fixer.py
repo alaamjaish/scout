@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from Backend.quality_checker import smart_teacher_check, print_report_card
+from .quality_checker import smart_teacher_check, print_report_card
 
 load_dotenv()
 
@@ -13,7 +13,7 @@ def get_openai_client():
         raise ValueError("Need your OpenAI key!")
     return OpenAI(api_key=api_key)
 
-def fix_newsletter(bad_newsletter, topic, teacher_feedback):
+async def fix_newsletter(bad_newsletter, topic, teacher_feedback):
     """
     Takes a bad newsletter and teacher feedback, returns improved version
     """
@@ -81,7 +81,7 @@ FINAL REMINDER: Respond in the SAME language as "{topic}".
 """
     
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-4.1-2025-04-14",
             messages=[{"role": "user", "content": fixer_prompt}],
             temperature=0.2  # Lower temperature for more professional output
