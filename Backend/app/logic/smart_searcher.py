@@ -80,7 +80,7 @@ def smart_search_brain(topic):
         response = client.chat.completions.create(
             model="gpt-4.1-2025-04-14",  # Our smart search brain
             messages=[{"role": "user", "content": search_brain_prompt}],
-            temperature=0.7  # Creative but focused
+            temperature=0.7
         )
         
         # Get the search strategy

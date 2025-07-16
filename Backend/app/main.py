@@ -14,6 +14,7 @@ app = FastAPI(title="Scout Newsletter API - 3rd push")
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:5173",
 ]
 
 app.add_middleware(

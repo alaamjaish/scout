@@ -1,6 +1,6 @@
 # llm.py
 import os
-from openai import OpenAI
+from openai import AsyncOpenAI  # <-- CHANGE 1: Import AsyncOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +15,7 @@ def get_openai_client():
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY not found in environment variables")
-        client = OpenAI(api_key=api_key)
+        client = AsyncOpenAI(api_key=api_key)
     return client
 
 async def generate_newsletter(all_content, topic):

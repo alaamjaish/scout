@@ -1,5 +1,5 @@
 import json
-from openai import OpenAI
+from openai import AsyncOpenAI
 import os
 from dotenv import load_dotenv
 from .quality_checker import smart_teacher_check, print_report_card
@@ -11,7 +11,7 @@ def get_openai_client():
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("Need your OpenAI key!")
-    return OpenAI(api_key=api_key)
+    return AsyncOpenAI(api_key=api_key)
 
 async def fix_newsletter(bad_newsletter, topic, teacher_feedback):
     """
@@ -84,7 +84,7 @@ FINAL REMINDER: Respond in the SAME language as "{topic}".
         response = await client.chat.completions.create(
             model="gpt-4.1-2025-04-14",
             messages=[{"role": "user", "content": fixer_prompt}],
-            temperature=0.2  # Lower temperature for more professional output
+            temperature=0.2,
         )
         
         return response.choices[0].message.content

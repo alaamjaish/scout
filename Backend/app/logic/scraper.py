@@ -1,6 +1,6 @@
 # app/logic/scraper.py
 
-from tavily import TavilyClient
+from tavily import AsyncTavilyClient
 import os
 from dotenv import load_dotenv
 
@@ -9,14 +9,18 @@ load_dotenv()
 # We still only want one client instance, so this part is fine.
 tavily_client = None
 
+
+
 def get_tavily_client():
     global tavily_client
     if tavily_client is None:
         api_key = os.environ.get("TAVILY_API_KEY")
         if not api_key:
             raise ValueError("TAVILY_API_KEY not found in environment variables")
-        tavily_client = TavilyClient(api_key=api_key)
+        # CHANGE 2: Create an instance of the Async client
+        tavily_client = AsyncTavilyClient(api_key=api_key)
     return tavily_client
+
 
 # This is an existing synchronous function, we can leave it as is.
 def is_content_good(search_result, topic):

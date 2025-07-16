@@ -1,5 +1,5 @@
 import json
-from openai import OpenAI
+from openai import AsyncOpenAI
 import os
 from datetime import datetime
 from dotenv import load_dotenv
@@ -11,7 +11,7 @@ def get_openai_client():
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("Need your OpenAI key!")
-    return OpenAI(api_key=api_key)
+    return AsyncOpenAI(api_key=api_key)
 
 async def smart_teacher_check(newsletter_content, topic):
     """
@@ -94,7 +94,7 @@ async def smart_teacher_check(newsletter_content, topic):
         response = await client.chat.completions.create(
             model="gpt-4.1-2025-04-14",
             messages=[{"role": "user", "content": teacher_prompt}],
-            temperature=0.1  # Low temperature for consistent critical evaluation
+            temperature=0.1,
         )
         
         # Get the critical feedback
