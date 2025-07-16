@@ -14,6 +14,7 @@ def get_openai_client():
     return OpenAI(api_key=api_key)
 
 def smart_teacher_check(newsletter_content, topic):
+    print(f"🔍 CRITICAL NEWSLETTER EVALUATOR: Evaluating newsletter about '{topic}'...")
     """
     CRITICAL NEWSLETTER EVALUATOR - Uses evidence-based techniques to avoid positivity bias
     

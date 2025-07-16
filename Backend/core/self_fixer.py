@@ -13,6 +13,7 @@ def get_openai_client():
     return OpenAI(api_key=api_key)
 
 def fix_newsletter(bad_newsletter, topic, teacher_feedback):
+    print(f"🔧 SELF-FIXER: Improving newsletter about '{topic}' with score {teacher_feedback.get('total_score', 0)}/50...")
     """
     Takes a bad newsletter and teacher feedback, returns improved version
     """
