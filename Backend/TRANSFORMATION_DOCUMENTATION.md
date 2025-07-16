@@ -23,14 +23,7 @@
 **What I Did:** Created organized folder structure in Backend/
 
 ```
-Backend/
-├── api/                    # FastAPI application code
-│   ├── routes/            # HTTP endpoint definitions
-│   ├── models/            # Data validation schemas
-│   └── main.py            # FastAPI app entry point
-├── core/                  # Your original business logic
-└── requirements.txt       # Dependencies
-```
+
 
 **Why I Did This:**
 - Separate API code from business logic
