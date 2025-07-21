@@ -2,7 +2,7 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-
+from datetime import datetime
 load_dotenv()
 
 # Don't initialize client at import time - do it when needed
@@ -72,6 +72,7 @@ Please generate a newsletter with:
 
 Keep it professional but exciting. Make it feel like insider knowledge.
 REMEMBER: Write in the SAME language as "{topic}".
+today's date is {datetime.now().strftime("%Y-%m-%d")}
 """
 
     try:

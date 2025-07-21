@@ -2,8 +2,8 @@
 import argparse
 import os
 from datetime import datetime
-from Backend.scraper import get_latest_articles
-from Backend.llm import generate_newsletter
+from Logic.scraper import get_latest_articles
+from Logic.llm import generate_newsletter
 
 def check_api_keys():
     """Verify that required API keys are available"""

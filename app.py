@@ -1,160 +1,108 @@
+# app.py
 import streamlit as st
-from Backend.scraper import get_latest_articles  
-from Backend.llm import generate_newsletter
-from Backend.smart_searcher import smart_search_brain
-from Backend.quality_checker import smart_teacher_check
-from Backend.self_fixer import fix_newsletter
-
+from Logic.scraper import get_latest_articles
+from Logic.llm import generate_newsletter
+from Logic.smart_searcher import smart_search_brain
+from Logic.quality_checker import run_editorial_review # <-- Renamed function
+from Logic.self_fixer import run_final_edit # <-- Renamed function
 
 def main():
-    st.title("Scout AI Newsletter Generator - Version 3.0")
-    st.caption("Intelligent Research & Quality Control System")
-    
-    # Sidebar with Pipeline Visualization
+    st.title("Scout AI Newsletter Generator - Version 6.0")
+    st.caption("Editorial Loop: Research → Draft → Review → Fact-Check → Finalize")
+
+    # --- Sidebar remains the same, you can update the text to reflect the new flow ---
     with st.sidebar:
-        st.markdown("### 🔧 CurrentSystem Pipeline")
+        st.markdown("### 🔧 CurrentSystem Pipeline (V6)")
         st.markdown("---")
-        
-        # Visual Pipeline Flow
         st.markdown("""
-        **INTELLIGENT PIPELINE FLOW**
-        
+        **EDITORIAL LOOP FLOW**
         ```
         📝 USER INPUT
-             ↓
-        🧠 SMART SEARCHER LLM
-        │  • OpenAI GPT-4.1 takes input
-        │  • Topic Analysis
-        │  • Writes Custom Queries
-             ↓
-        🌐 WEB SCRAPER  
-        │  • Tavily API
-        │  • 5x Targeted Searches
-        │  • Content Filtering
-             ↓
-        ✍️ CONTENT GENERATOR LLM
-        │  • OpenAI GPT-4.1
-        │  • Multi-language content processing
-        │  • Professional Formatting (will be customized)
-             ↓
-        📊 QUALITY CHECKER LLM
-        │  • AI Scoring (0-50)
-        │  • Professional Standards
-        │  • Bias Detection
-             ↓
-        🔧 AUTO-FIXER LLM
-        │  • Smart Improvements
-        │  • Iterative Refinement
-        │  • Quality Threshold
-             ↓
+              ↓
+        🧠 SMART SEARCHER
+              ↓
+        🌐 WEB SCRAPER (Pass 1)
+              ↓
+        ✍️ CONTENT GENERATOR
+         (Creates First Draft)
+              ↓
+        🕵️ AI EDITOR
+         (Finds Factual Gaps)
+         (Generates New Queries)
+              │
+              ├─[Good? Done!]
+              ↓
+        🌐 WEB SCRAPER (Pass 2)
+         (Finds Missing Facts)
+              ↓
+        ✨ FINAL EDITOR
+         (Integrates New Facts)
+              ↓
         ✅ FINAL OUTPUT
         ```
         """)
-        
-        st.markdown("---")
-        
-        # Technology Stack
-        st.markdown("""
-        **TECH STACK**
-        
-        **🤖 AI Models:**
-        • OpenAI GPT-4.1
-        • Advanced reasoning
-        
-        **🔍 Research:**
-        • Tavily Search API
-        • Real-time web data
-        
-        **🏗️ Backend:**
-        • Python 3.11+
-        • Modular architecture
-        
-        **🖥️ Frontend:**
-        • Streamlit framework
-        • Responsive design
-        
-        **⚙️ Features:**
-        • Dynamic search strategy
-        • Quality assurance
-        • Self-improvement
-        • Multi-language support
-        """)
-        
-        st.markdown("---")    
-    # System Overview Section
-    with st.expander("📋 Detailed System Architecture", expanded=False):
-        st.markdown("""
-        ### Technical Implementation Details
-        
-        **Core Technologies:**
-        - **Frontend**: Streamlit (Python web framework)
-        - **AI Models**: OpenAI GPT-4.1 for content generation & analysis
-        - **Web Research**: Tavily API for intelligent web search
-        - **Backend**: Python with modular component architecture
-        
-        **Intelligent Pipeline (5-Stage Process):**
-        
-        1. **Smart Search Planning** → AI analyzes topic type and creates targeted search queries
-        2. **Web Research Execution** → Tavily API searches internet with custom queries  
-        3. **Content Quality Filtering** → Filters low-quality/irrelevant content automatically
-        4. **Newsletter Generation** → OpenAI generates professional newsletter from curated research
-        5. **Quality Control & Auto-Improvement** → Scores content (0-50), auto-rewrites if score < 35
-        
-        **Key Differentiators:**
-        - **Dynamic Search Strategy**: Unlike static search tools, AI customizes search approach per topic
-        - **Quality Assurance**: Professional scoring system prevents low-quality outputs  
-        - **Self-Improving**: Automatically detects and fixes poor content without human intervention
-        - **Multi-language Support**: Detects input language and responds accordingly
-        
-        **Component Architecture:**
-        ```
-        app.py (Interface) → smart_searcher.py → scraper.py → llm.py → quality_checker.py → self_fixer.py
-        ```
-        """)
-    
-    # Main Application Interface
+
+    # --- Main Application Interface ---
     st.markdown("---")
-    
-    # Simple topic input
     topic = st.text_input("Enter newsletter topic:")
-    
-    # Simple generate button
+
     if st.button("Generate Newsletter"):
-        if topic:
+        if not topic:
+            st.error("Please enter a topic")
+            return
+
+        final_newsletter = ""
+        new_research = None
+
+        with st.spinner("Running intelligent pipeline... This may take a moment."):
             try:
-                # Get articles
-                st.write("🔍 Planning search strategy...")
-                search_strategy = smart_search_brain(topic)  
+                # === STAGE 1: DRAFTING PASS ===
+                st.write("🧠 Planning initial research strategy...")
+                search_strategy = smart_search_brain(topic)
                 
-                st.write("📡 Researching web content...")
-                search_results = get_latest_articles(topic, search_strategy)   
+                st.write("📡 Performing initial web research (Pass 1)...")
+                initial_research = get_latest_articles(topic, search_strategy)
 
-                if not search_results:
-                    st.error("No quality content found. Try a different topic.")
+                if not initial_research:
+                    st.error("No quality content found in initial search. Try a different topic.")
                     return
-                
-                # Generate newsletter
-                st.write("✍️ Generating newsletter...")
-                newsletter = generate_newsletter(search_results, topic)
-                
-                st.write("📊 Quality control check...")
-                quality_check = smart_teacher_check(newsletter, topic)
-                
-                st.write("🔧 Auto-improvement processing...")
-                final_newsletter = fix_newsletter(newsletter, topic, quality_check)
-                
-                # Display result
-                st.success("Newsletter generated!")
-                
 
+                st.write("✍️ Generating first draft...")
+                first_draft = generate_newsletter(initial_research, topic)
+
+                # === STAGE 2: EDITORIAL REVIEW PASS ===
+                st.write("🕵️ Performing editorial review to find factual gaps...")
+                editorial_review = run_editorial_review(first_draft, topic)
                 
-                st.markdown("### Newsletter")
-                st.markdown(final_newsletter)
-                
+                st.info(f"**Editor's Verdict:** {editorial_review.get('editorial_summary')} (Score: {editorial_review.get('quality_score')}/50)")
+
+                # === STAGE 3: CONDITIONAL FACT-FINDING PASS ===
+                if editorial_review.get("requires_more_research"):
+                    st.write("📡 Performing targeted fact-finding (Pass 2)...")
+                    gap_queries = [item['new_search_query'] for item in editorial_review.get("gap_analysis", [])]
+                    
+                    # Create a temporary search strategy for the second pass
+                    fact_finding_strategy = {"search_queries": gap_queries}
+                    new_research = get_latest_articles(topic, fact_finding_strategy)
+                    st.success(f"Found {len(new_research)} new sources to fill gaps.")
+                else:
+                    st.write("✅ Draft passed editorial review. No fact-finding needed.")
+
+
+                # === STAGE 4: FINAL EDIT PASS ===
+                st.write("✨ Performing final edit...")
+                final_newsletter = run_final_edit(first_draft, editorial_review, new_research, topic)
+
+                # Display result
+                st.success("Newsletter generation complete!")
+
             except Exception as e:
                 st.error(f"System error: {str(e)}")
-        else:
-            st.error("Please enter a topic")
+                return # Stop execution on error
+
+        st.markdown("---")
+        st.markdown("### Final Newsletter")
+        st.markdown(final_newsletter)
 
 if __name__ == "__main__":
-    main() 
+    main()
